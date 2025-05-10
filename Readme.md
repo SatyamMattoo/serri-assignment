@@ -57,6 +57,23 @@ npm run dev
 
 ---
 
+## 🗃️ Database Setup Notes
+
+Ensure you have the required PostgreSQL extension and indexes:
+This has to be done to support fuzzy search cause we cannot do it directly using prisma
+
+```sql
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE INDEX IF NOT EXISTS idx_video_title_trgm
+  ON "Video" USING gin (title gin_trgm_ops);
+
+CREATE INDEX IF NOT EXISTS idx_video_description_trgm
+  ON "Video" USING gin (description gin_trgm_ops);
+```
+
+---
+
 ### 🐳 Run Backend with Docker
 
 ```bash
@@ -130,24 +147,6 @@ GET /api/v1/videos/search?q=your+query&page=1&limit=20
   ]
 }
 ```
-
----
-
-## 🗃️ Database Setup Notes
-
-Ensure you have the required PostgreSQL extension and indexes:
-This has to be done to support fuzzy search cause we cannot do it directly using prisma
-
-```sql
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
-
-CREATE INDEX IF NOT EXISTS idx_video_title_trgm
-  ON "Video" USING gin (title gin_trgm_ops);
-
-CREATE INDEX IF NOT EXISTS idx_video_description_trgm
-  ON "Video" USING gin (description gin_trgm_ops);
-```
-
 ---
 
 ## 📦 Tech Stack
