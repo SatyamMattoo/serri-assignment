@@ -1,5 +1,6 @@
 # 🎬 Video Search App
-A fullstack application to search and display videos with fuzzy matching using PostgreSQL's `pg_trgm` and `similarity()`. The backend is powered by Express, Prisma, and PostgreSQL. The frontend is built using React and `@tanstack/react-table@8` with sorting, filtering, and pagination.
+
+A fullstack application to search and display videos using PostgreSQL's **full-text search** capabilities (with `GIN` index and `to_tsvector`). The backend is powered by Express, Prisma, and PostgreSQL. The frontend is built using React and `@tanstack/react-table@8` with sorting, filtering, and pagination.
 
 ---
 
@@ -16,9 +17,9 @@ A fullstack application to search and display videos with fuzzy matching using P
 ## 🚀 Features
 
 ### ✅ Backend
-- Full-text fuzzy search using PostgreSQL + `pg_trgm`
+- Full-text search using PostgreSQL `to_tsvector` and `GIN` index
 - Prisma ORM integration
-- Search API with pagination and similarity-based scoring
+- Search API with pagination and ranking based on `ts_rank_cd`
 - Dockerized backend for easy deployment
 
 ### ✅ Frontend
@@ -59,17 +60,16 @@ npm run dev
 
 ## 🗃️ Database Setup Notes
 
-Ensure you have the required PostgreSQL extension and indexes:
-This has to be done to support fuzzy search cause we cannot do it directly using prisma
+Ensure you have the required PostgreSQL extension and full-text index:
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
-CREATE INDEX IF NOT EXISTS idx_video_title_trgm
-  ON "Video" USING gin (title gin_trgm_ops);
-
-CREATE INDEX IF NOT EXISTS idx_video_description_trgm
-  ON "Video" USING gin (description gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_video_fulltext
+  ON "Video"
+  USING GIN (
+    to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, ''))
+  );
 ```
 
 ---
@@ -142,16 +142,17 @@ GET /api/v1/videos/search?q=your+query&page=1&limit=20
       "id": "...",
       "title": "...",
       "description": "...",
-      "similarity_score": 0.78
+      "rank": 0.245
     }
   ]
 }
 ```
+
 ---
 
 ## 📦 Tech Stack
 
-- **Backend**: Node.js, Express, Prisma, PostgreSQL (`pg_trgm`)
+- **Backend**: Node.js, Express, Prisma, PostgreSQL (`to_tsvector`, GIN index)
 - **Frontend**: React, TypeScript, @tanstack/react-table v8
 - **DevOps**: Docker (only for backend)
 
