@@ -1,0 +1,26 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Video {
+  id           String   @id @map("video_id")
+  title        String   @db.Text
+  description  String?  @db.Text
+  publishedAt  DateTime @db.Timestamp(6)
+  thumbnailUrl String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  @@index([publishedAt], name: "idx_videos_published_at")
+  @@index([title, description], name: "idx_videos_title_description")
+}
