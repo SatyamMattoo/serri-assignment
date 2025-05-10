@@ -33,7 +33,7 @@ A fullstack application to search and display videos with fuzzy matching using P
 ### 📦 Clone the Repo
 
 ```bash
-git clone <your-repo-link>
+git clone https://github.com/SatyamMattoo/serri-assignment.git
 cd backend
 ```
 
