@@ -35,20 +35,24 @@ export const searchVideos = async (req: Request, res: Response) => {
       SELECT *,
         ts_rank(
           to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, '')),
-          plainto_tsquery('english', $1)
+          websearch_to_tsquery('english', $1)
         ) AS rank
       FROM "Video"
-      WHERE to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, ''))
-            @@ plainto_tsquery('english', $1)
-      ORDER BY rank DESC
+      WHERE
+        to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, '')) @@ websearch_to_tsquery('english', $1)
+        OR title ILIKE '%' || $1 || '%'
+        OR description ILIKE '%' || $1 || '%'
+      ORDER BY rank DESC NULLS LAST
       LIMIT $2 OFFSET $3;
     `;
 
     const totalQuery = `
       SELECT COUNT(*) as count
       FROM "Video"
-      WHERE to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, ''))
-            @@ plainto_tsquery('english', $1);
+      WHERE
+        to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, '')) @@ websearch_to_tsquery('english', $1)
+        OR title ILIKE '%' || $1 || '%'
+        OR description ILIKE '%' || $1 || '%';
     `;
 
     const videos = await prisma.$queryRawUnsafe(query, q, limit, offset);
@@ -61,5 +65,3 @@ export const searchVideos = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-

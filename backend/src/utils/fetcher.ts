@@ -1,6 +1,7 @@
 import axios from "axios";
-import { prisma } from "./db";
 import dotenv from "dotenv";
+
+import { prisma } from "./db";
 
 dotenv.config();
 
