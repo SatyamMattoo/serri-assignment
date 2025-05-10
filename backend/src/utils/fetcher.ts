@@ -6,7 +6,7 @@ dotenv.config();
 
 const YT_API_KEYS = process.env.YT_API_KEYS!.split(",");
 const SEARCH_QUERY = process.env.SEARCH_QUERY || "official";
-const FETCH_INTERVAL = parseInt(process.env.FETCH_INTERVAL || "1000000"); // 10 seconds
+const FETCH_INTERVAL = parseInt(process.env.FETCH_INTERVAL || "10000"); // 10 seconds
 
 let keyIndex = 0;
 let lastPublishedAt = new Date(0);
